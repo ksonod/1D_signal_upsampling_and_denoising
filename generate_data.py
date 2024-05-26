@@ -1,15 +1,17 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 CONFIG = {
     "num_total_data": 60000,
-    "x": np.arange(0, 1024, 1),
-    "x_upsampling_factor": 4,
+    "x": np.arange(0, 256, 1),  # np.arange(0, 1024, 1)
+    "x_upsampling_factor": 4,  # 4
     "num_peaks": [2, 8],  # [minimum, maximum]
     "peak_width_range": [20, 100],  # [minimum width, maximum width]
     "amplitude_range": [0.5, 2],  # 1 is a reference. [minimum amplitude, maximum amplitude]
     "noise_scale": [0.05, 0.1],  # [minimum, maximum]. Scale is used in numpy.random.normal
     "clip_at_0": True,  # True means the minimum signal value will be 0 (i.e., no negative number).
+    "show_example": True,
 }
 
 
@@ -87,7 +89,12 @@ def main(config):
     np.save(arr=X, file="X.npy")
     np.save(arr=y, file="y.npy")
 
-    return 0
+    if config["show_example"]:
+        plt.figure()
+        plt.plot(signal_dict["x"], signal_dict["noisy_signal"], "r-", alpha=0.5)
+        plt.plot(signal_dict["x"], signal_dict["signal"], "k-")
+        plt.plot(signal_dict["down_sampled_x"], signal_dict["down_sampled_noisy_signal"], "b.-", alpha=0.6, markersize=2)
+        plt.show()
 
 
 if __name__ == "__main__":
