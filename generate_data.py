@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 CONFIG = {
-    "num_total_data": 50000,
+    "num_total_data": 100000,
     "x": np.arange(0, 256, 1),  # np.arange(0, 1024, 1)
     "x_upsampling_factor": 4,  # 4
+    "center_range_factor": 0.25,
     "num_peaks": [2, 4],  # [minimum, maximum]
-    "peak_width_range": [5, 30],  # [minimum width, maximum width]
+    "peak_width_range": [10, 15],  # [minimum width, maximum width]
     "amplitude_range": [0.5, 2],  # 1 is a reference. [minimum amplitude, maximum amplitude]
-    "noise_scale": [0.01, 0.03],  # [minimum, maximum]. Scale is used in numpy.random.normal
+    "noise_scale": [0.03, 0.05],  # [minimum, maximum]. Scale is used in numpy.random.normal
     "clip_at_0": True,  # True means the minimum signal value will be 0 (i.e., no negative number).
     "show_example": True,
 }
@@ -40,12 +41,16 @@ def generate_signal(config):
         "amplitude_list": []
     }
 
+    center_range = [
+        config["x"].max()*config["center_range_factor"],
+        (1 - config["center_range_factor"]) * config["x"].max()
+    ]
     for peak_idx in range(num_peaks):
         signal_dict["width_list"].append(
             np.random.uniform(low=config["peak_width_range"][0], high=config["peak_width_range"][1])
         )
         signal_dict["center_list"].append(
-            np.random.uniform(low=0, high=config["x"].max())
+            np.random.uniform(low=center_range[0], high=center_range[1])
         )
         signal_dict["amplitude_list"].append(
             np.random.uniform(low=config["amplitude_range"][0], high=config["amplitude_range"][1])
@@ -73,7 +78,7 @@ def main(config):
     X = []
     y = []
 
-    for idx in tqdm(range(config["num_total_data"])):
+    for i in tqdm(range(config["num_total_data"])):
         signal_dict = generate_signal(config)
 
         # Down sampling signals
@@ -86,10 +91,11 @@ def main(config):
     X = np.array(X)
     y = np.array(y)
 
+    # Save data
     np.save(arr=X, file="X.npy")
     np.save(arr=y, file="y.npy")
 
-    if config["show_example"]:
+    if config["show_example"]:  # The last data will be shown.
         plt.figure()
         plt.plot(signal_dict["x"], signal_dict["noisy_signal"], "r-", alpha=0.5)
         plt.plot(signal_dict["x"], signal_dict["signal"], "k-")
