@@ -1,0 +1,97 @@
+import numpy as np
+from tqdm import tqdm
+
+CONFIG = {
+    "num_total_data": 60000,
+    "x": np.arange(0, 1024, 1),
+    "x_upsampling_factor": 4,
+    "num_peaks": [2, 8],  # [minimum, maximum]
+    "peak_width_range": [20, 100],  # [minimum width, maximum width]
+    "amplitude_range": [0.5, 2],  # 1 is a reference. [minimum amplitude, maximum amplitude]
+    "noise_scale": [0.05, 0.1],  # [minimum, maximum]. Scale is used in numpy.random.normal
+    "clip_at_0": True,  # True means the minimum signal value will be 0 (i.e., no negative number).
+}
+
+
+def gaussian(x, width, center, amplitude):
+    """
+    Parametric form of a Gaussian function
+    """
+    gaussian_signal = amplitude * np.exp(- 0.5 * (x-center)**2 / width ** 2)
+    return gaussian_signal.astype(np.float16)
+
+
+def normalize_signal(signal):
+    signal -= signal.min()
+    return signal/signal.max()
+
+
+def generate_signal(config):
+
+    num_peaks = np.random.randint(low=config["num_peaks"][0], high=config["num_peaks"][1])
+
+    signal_dict = {
+        "x": config["x"],
+        "signal": np.zeros_like(config["x"]).astype(np.float16),
+        "width_list": [],
+        "center_list": [],
+        "amplitude_list": []
+    }
+
+    for peak_idx in range(num_peaks):
+        signal_dict["width_list"].append(
+            np.random.uniform(low=config["peak_width_range"][0], high=config["peak_width_range"][1])
+        )
+        signal_dict["center_list"].append(
+            np.random.uniform(low=0, high=config["x"].max())
+        )
+        signal_dict["amplitude_list"].append(
+            np.random.uniform(low=config["amplitude_range"][0], high=config["amplitude_range"][1])
+        )
+
+        signal_dict["signal"] += gaussian(
+            x=config["x"],
+            width=signal_dict["width_list"][-1],
+            center=signal_dict["center_list"][-1],
+            amplitude=signal_dict["amplitude_list"][-1]
+        )
+
+    signal_dict["signal"] = normalize_signal(signal_dict["signal"])
+
+    noise_scale = np.random.uniform(low=config["noise_scale"][0], high=config["noise_scale"][1])
+    random_noise = np.random.normal(loc=0, scale=noise_scale, size=config["x"].shape[0])
+    signal_dict["noisy_signal"] = signal_dict["signal"] + random_noise
+    if config["clip_at_0"]:
+        signal_dict["noisy_signal"][signal_dict["noisy_signal"] <= 0] = 0
+    return signal_dict
+
+
+def main(config):
+
+    X = []
+    y = []
+
+    for idx in tqdm(range(config["num_total_data"])):
+        signal_dict = generate_signal(config)
+
+        # Down sampling signals
+        for key in ["noisy_signal", "signal", "x"]:
+            signal_dict[f"down_sampled_{key}"] = signal_dict[key][::config["x_upsampling_factor"]]
+
+        X.append(signal_dict["down_sampled_noisy_signal"])
+        y.append(signal_dict["signal"])
+
+    X = np.array(X)
+    y = np.array(y)
+
+    np.save(arr=X, file="X.npy")
+    np.save(arr=y, file="y.npy")
+
+    return 0
+
+
+if __name__ == "__main__":
+    main(config=CONFIG)
+
+
+
