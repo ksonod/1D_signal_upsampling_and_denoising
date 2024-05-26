@@ -18,13 +18,13 @@ CONFIG = {
     "validation_size": 0.2,
 
     "model_params": {
-        "input_shape": (64, 1),  # (256, 1)
+        "input_shape": (32, 1),  # (256, 1)
         "num_residual_blocks": 5,  # 32
-        "filters": 64,  # 256. It should be the same as the input shape.
+        "filters": 32,  # 256. It should be the same as the input shape.
         "scaling_factor": 4,  # 4
     },
     "training_params": {
-        "epochs": 4,
+        "epochs": 2,
         "batch_size": 32
     },
     "model_optimizer": {
@@ -53,6 +53,33 @@ CONFIG = {
     ],
     "evaluate_on_test_data": True,
 }
+
+
+def evaluate_model_on_test_data(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+    test_mse = tf.keras.losses.MSE(y_test, np.squeeze(y_pred))._numpy().mean()
+    print(f"Results for the test data: {test_mse}")
+
+    scaling_factor = int(y_test.shape[1] / X_test.shape[1])
+    num_data_to_visualize = 5
+    plt.figure(figsize=(4, 8))
+    for i in range(num_data_to_visualize):
+        plt.subplot(num_data_to_visualize, 1, i + 1)
+        data_idx = np.random.randint(low=0, high=y_pred.shape[0])
+        plt.plot(
+            np.arange(0, y_test.shape[1], 1)[::scaling_factor], X_test[data_idx, :].flatten(),
+            "b-", alpha=0.5, label="input"
+        )
+        plt.plot(
+            np.arange(0, y_test.shape[1], 1), y_pred[data_idx, :].flatten(),
+            "r-", alpha=0.5, label="prediction"
+        )
+        plt.plot(
+            np.arange(0, y_test.shape[1], 1), y_test[data_idx, :].flatten(),
+            "k--", label="ground-truth"
+        )
+        plt.legend()
+        plt.tight_layout()
 
 
 def main(input_files, config):
@@ -86,30 +113,7 @@ def main(input_files, config):
     plt.xlabel("Epoch")
 
     if config["evaluate_on_test_data"]:
-        y_pred = model.predict(X_test)
-        test_mse = tf.keras.losses.MSE(y_test, np.squeeze(y_pred))._numpy().mean()
-        print(f"Results for the test data: {test_mse}")
-
-        scaling_factor = int(y.shape[1]/X.shape[1])
-        num_data_to_visualize = 5
-        plt.figure(figsize=(10, 4))
-        for i in range(num_data_to_visualize):
-            plt.subplot(num_data_to_visualize, 1, i+1)
-            data_idx = np.random.randint(low=0, high=y_pred.shape[0])
-            plt.plot(
-                np.arange(0, y.shape[1], 1)[::scaling_factor], X_test[data_idx, :].flatten(),
-                "b-", alpha=0.5, label="input"
-            )
-            plt.plot(
-                np.arange(0, y.shape[1], 1), y_pred[data_idx, :].flatten(),
-                "r-", alpha=0.5, label="prediction"
-            )
-            plt.plot(
-                np.arange(0, y.shape[1], 1), y_test[data_idx, :].flatten(),
-                "k--", label="ground-truth"
-            )
-            plt.legend()
-            plt.tight_layout()
+        evaluate_model_on_test_data(model, X_test, y_test)
     plt.show()
 
 
