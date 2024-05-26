@@ -5,7 +5,7 @@ from tqdm import tqdm
 CONFIG = {
     "num_total_data": 100000,
     "x": np.arange(0, 256, 1),  # np.arange(0, 1024, 1)
-    "x_upsampling_factor": 4,  # 4
+    "x_upsampling_factor": 4,  # 4a
     "center_range_factor": 0.25,
     "num_peaks": [2, 4],  # [minimum, maximum]
     "peak_width_range": [10, 15],  # [minimum width, maximum width]
@@ -92,6 +92,7 @@ def main(config):
     y = np.array(y)
 
     # Save data
+    print(f"X shape: {X.shape}. y shape {y.shape}")
     np.save(arr=X, file="X.npy")
     np.save(arr=y, file="y.npy")
 

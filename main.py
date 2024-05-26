@@ -18,14 +18,14 @@ CONFIG = {
     "validation_size": 0.2,
 
     "model_params": {
-        "input_shape": (32, 1),  # (256, 1)
-        "num_residual_blocks": 5,  # 32
-        "filters": 32,  # 256. It should be the same as the input shape.
+        "input_shape": (64, 1),  # (256, 1)
+        "num_residual_blocks": 8,  # 32
+        "filters": 64,  # 256. It should be the same as the input shape.
         "scaling_factor": 4,  # 4
     },
     "training_params": {
-        "epochs": 2,
-        "batch_size": 32
+        "epochs": 20,
+        "batch_size": 128
     },
     "model_optimizer": {
         "optimizer": tf.keras.optimizers.Adam(
@@ -46,7 +46,7 @@ CONFIG = {
         }),
         tf.keras.callbacks.EarlyStopping(**{
             "monitor": "val_loss",
-            "patience": 10,
+            "patience": 8,
             "verbose": 1,
             "restore_best_weights": True,
         }),
@@ -80,6 +80,7 @@ def evaluate_model_on_test_data(model, X_test, y_test):
         )
         plt.legend()
         plt.tight_layout()
+    plt.savefig("prediction_examples.png")
 
 
 def main(input_files, config):
@@ -111,6 +112,7 @@ def main(input_files, config):
     plt.legend()
     plt.ylabel("Loss")
     plt.xlabel("Epoch")
+    plt.savefig("training_curve.png")
 
     if config["evaluate_on_test_data"]:
         evaluate_model_on_test_data(model, X_test, y_test)
