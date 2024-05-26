@@ -18,25 +18,42 @@ CONFIG = {
     "validation_size": 0.2,
 
     "model_params": {
-        "input_shape": (256, 1),
-        "num_residual_blocks": 10,  # 32
-        "filters": 256,  # 256
+        "input_shape": (64, 1),  # (256, 1)
+        "num_residual_blocks": 5,  # 32
+        "filters": 64,  # 256. It should be the same as the input shape.
         "scaling_factor": 4,  # 4
+    },
+    "training_params": {
+        "epochs": 4,
+        "batch_size": 32
     },
     "model_optimizer": {
         "optimizer": tf.keras.optimizers.Adam(
-            learning_rate=0.001,  # 0.001
-            beta_1=0.9,  # 0.9
+            learning_rate=3e4,  # 0.001
+            beta_1=0.5,  # 0.9
             beta_2=0.999,  # 0.999
         ),
         "loss": tf.keras.losses.MeanSquaredError(),
     },
-    "training_params": {
-        "epochs": 10,
-        "batch_size": 32
-    },
+    "callbacks": [
+        tf.keras.callbacks.ModelCheckpoint(**{
+            "filepath": "model.h5",
+            "monitor": "val_loss",
+            "verbose": 1,
+            "save_best_only": True,
+            "save_weights_only": False,
+            "save_freq": "epoch",
+        }),
+        tf.keras.callbacks.EarlyStopping(**{
+            "monitor": "val_loss",
+            "patience": 10,
+            "verbose": 1,
+            "restore_best_weights": True,
+        }),
+    ],
     "evaluate_on_test_data": True,
 }
+
 
 def main(input_files, config):
     X = np.load(input_files["X"])
@@ -52,17 +69,18 @@ def main(input_files, config):
     model.compile(optimizer="adam", loss="mse")
 
     history = model.fit(
-        x=X_train[:5000],
-        y=y_train[:5000],
+        x=X_train,
+        y=y_train,
         batch_size=config["training_params"]["batch_size"],
         epochs=config["training_params"]["epochs"],
         validation_split=config["validation_size"],
-        shuffle=True
+        shuffle=True,
+        callbacks=config["callbacks"]
     )
 
     plt.figure()
-    plt.plot(history.epoch, history.history["loss"], ".", label="train")
-    plt.plot(history.epoch, history.history["val_loss"], ".", label="val")
+    plt.plot(history.epoch, history.history["loss"], label="train")
+    plt.plot(history.epoch, history.history["val_loss"], label="val")
     plt.legend()
     plt.ylabel("Loss")
     plt.xlabel("Epoch")
@@ -74,7 +92,7 @@ def main(input_files, config):
 
         scaling_factor = int(y.shape[1]/X.shape[1])
         num_data_to_visualize = 5
-        plt.figure()
+        plt.figure(figsize=(10, 4))
         for i in range(num_data_to_visualize):
             plt.subplot(num_data_to_visualize, 1, i+1)
             data_idx = np.random.randint(low=0, high=y_pred.shape[0])
@@ -91,6 +109,7 @@ def main(input_files, config):
                 "k--", label="ground-truth"
             )
             plt.legend()
+            plt.tight_layout()
     plt.show()
 
 
