@@ -3,10 +3,12 @@ from model import build_model
 import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import json
 
 INPUT_FILES = {
     "X": "X.npy",  # Noisy low-sampled data
     "y": "y.npy",  # Noise-less high-resolution data
+    # "model_weights": "model1_64to256.h5",  # It can be commented out.
 }
 
 CONFIG = {
@@ -18,22 +20,23 @@ CONFIG = {
     "validation_size": 0.2,
 
     "model_params": {
-        "input_shape": (64, 1),  # (256, 1)
+        "input_shape": (32, 1),  # (256, 1). It should be the same as the filters.
         "num_residual_blocks": 8,  # 32
-        "filters": 64,  # 256. It should be the same as the input shape.
+        "filters": 32,  # 256. It should be the same as the input shape.
         "scaling_factor": 4,  # 4
+        "kernel_initializer": tf.keras.initializers.HeUniform(),
     },
     "training_params": {
-        "epochs": 20,
-        "batch_size": 128
+        "epochs": 2,
+        "batch_size": 64
     },
     "model_optimizer": {
         "optimizer": tf.keras.optimizers.Adam(
-            learning_rate=3e4,  # 0.001
-            beta_1=0.5,  # 0.9
-            beta_2=0.999,  # 0.999
+            # learning_rate=1e3,  # 0.001
+            # beta_1=0.9,  # 0.9
+            # beta_2=0.999,  # 0.999
         ),
-        "loss": tf.keras.losses.MeanSquaredError(),
+        "loss": tf.keras.losses.MeanAbsoluteError(),
     },
     "callbacks": [
         tf.keras.callbacks.ModelCheckpoint(**{
@@ -51,6 +54,7 @@ CONFIG = {
             "restore_best_weights": True,
         }),
     ],
+    "train_model": True,
     "evaluate_on_test_data": True,
 }
 
@@ -94,25 +98,34 @@ def main(input_files, config):
         num_residual_blocks=config["model_params"]["num_residual_blocks"]
     )
     model.summary()
-    model.compile(optimizer="adam", loss="mse")
+    model.compile(**config["model_optimizer"])
+    # model.compile(optimizer="adam", loss="mse")
 
-    history = model.fit(
-        x=X_train,
-        y=y_train,
-        batch_size=config["training_params"]["batch_size"],
-        epochs=config["training_params"]["epochs"],
-        validation_split=config["validation_size"],
-        shuffle=True,
-        callbacks=config["callbacks"]
-    )
+    if "model_weights" in input_files:
+        model.load_weights(input_files["model_weights"])
 
-    plt.figure()
-    plt.plot(history.epoch, history.history["loss"], label="train")
-    plt.plot(history.epoch, history.history["val_loss"], label="val")
-    plt.legend()
-    plt.ylabel("Loss")
-    plt.xlabel("Epoch")
-    plt.savefig("training_curve.png")
+    # Train a model
+    if config["train_model"]:
+        history = model.fit(
+            x=X_train,
+            y=y_train,
+            batch_size=config["training_params"]["batch_size"],
+            epochs=config["training_params"]["epochs"],
+            validation_split=config["validation_size"],
+            shuffle=True,
+            callbacks=config["callbacks"]
+        )
+
+        with open("training_history.json", "w") as f:
+            json.dump(history.history, f)
+
+        plt.figure()
+        plt.plot(history.epoch, history.history["loss"], label="train")
+        plt.plot(history.epoch, history.history["val_loss"], label="val")
+        plt.legend()
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.savefig("training_curve.png")
 
     if config["evaluate_on_test_data"]:
         evaluate_model_on_test_data(model, X_test, y_test)
