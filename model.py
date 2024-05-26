@@ -15,17 +15,17 @@ def residual_block(inputs, **kwargs):
     return tf.keras.layers.Add()([x, inputs])
 
 
-def build_model(input_shape=(256, 1), num_residual_blocks=32):
+def build_model(input_shape=(256, 1), num_residual_blocks=32, filters=256, scaling_factor=4):
     inputs = tf.keras.Input(shape=input_shape, dtype="float32")
 
     # Multiple residual blocks for feature extraction
-    x = tf.keras.layers.Conv1D(filters=256, kernel_size=3, strides=1, padding="same", activation=None)(inputs)
+    x = tf.keras.layers.Conv1D(filters=filters, kernel_size=3, strides=1, padding="same", activation=None)(inputs)
     for i in range(num_residual_blocks):
-        x = residual_block(inputs=x, filters=256, kernel_size=3, strides=1, padding="same", activation=None)
+        x = residual_block(inputs=x, filters=filters, kernel_size=3, strides=1, padding="same", activation=None)
 
     # Up-sampling block
-    x = tf.keras.layers.Conv1D(filters=256, kernel_size=3, strides=1, padding="same", activation=None)(x)
-    x = tf.keras.layers.Conv1D(filters=4, kernel_size=3, strides=1, padding="same", activation=None)(x)
+    x = tf.keras.layers.Conv1D(filters=filters, kernel_size=3, strides=1, padding="same", activation=None)(x)
+    x = tf.keras.layers.Conv1D(filters=scaling_factor, kernel_size=3, strides=1, padding="same", activation=None)(x)
     x = tf.reshape(tf.transpose(x, [0, 2, 1]), (-1, x.shape[1] * x.shape[2], 1))  # point shuffle.
     x = tf.keras.activations.relu(x)
     return tf.keras.Model(inputs=inputs, outputs=x, name="FDRN")

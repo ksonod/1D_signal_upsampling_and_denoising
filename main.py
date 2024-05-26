@@ -19,7 +19,9 @@ CONFIG = {
 
     "model_params": {
         "input_shape": (256, 1),
-        "num_residual_blocks": 10
+        "num_residual_blocks": 10,  # 32
+        "filters": 256,  # 256
+        "scaling_factor": 4,  # 4
     },
     "model_optimizer": {
         "optimizer": tf.keras.optimizers.Adam(
