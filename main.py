@@ -20,19 +20,20 @@ CONFIG = {
     "validation_size": 0.2,
 
     "model_params": {
-        "input_shape": (32, 1),  # (256, 1). It should be the same as the filters.
-        "num_residual_blocks": 8,  # 32
-        "filters": 32,  # 256. It should be the same as the input shape.
+        "input_shape": (128, 1),  # (256, 1). It should be the same as the filters.
+        "num_residual_blocks": 16,  # 32
+        "filters": 128,  # 256. It should be the same as the input shape.
         "scaling_factor": 4,  # 4
-        "kernel_initializer": tf.keras.initializers.HeUniform(),
     },
     "training_params": {
-        "epochs": 2,
+        "epochs": 10,
         "batch_size": 64
     },
-    "model_optimizer": {
+    "model_optimizer": {  # adadelta, adafactor
         "optimizer": tf.keras.optimizers.Adam(
-            # learning_rate=1e3,  # 0.001
+            # learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(
+            #     2e-4, decay_steps=200, decay_rate=0.95, staircase=True
+            # ),  # 0.001
             # beta_1=0.9,  # 0.9
             # beta_2=0.999,  # 0.999
         ),
