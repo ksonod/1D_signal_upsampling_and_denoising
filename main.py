@@ -1,9 +1,10 @@
-import tensorflow as tf
-from model import build_model
-import numpy as np
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
 import json
+import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from model import build_model
+from loss import CustomLoss
 
 INPUT_FILES = {
     "X": "X.npy",  # Noisy low-sampled data
@@ -20,31 +21,32 @@ CONFIG = {
     "validation_size": 0.2,
 
     "model_params": {
-        "input_shape": (256, 1),  # (256, 1). It should be the same as the filters.
-        "num_residual_blocks": 32,  # 32
+        "input_shape": (128, 1),  # (256, 1). It should be the same as the filters.
+        "num_residual_blocks": 2,  # 32
         "scaling_factor": 4,  # 4
         "conv_blocks": {
-            "filters": 256,  # 256. It should be the same as the input shape.
+            "filters": 128,  # 256. It should be the same as the input shape.
             "kernel_size": 3,  # 3
             "strides": 1,  # 1
             "padding": "same",  # "same"
             "kernel_regularizer": tf.keras.regularizers.L2(),
-            "kernel_initializer": "he_uniform",
+            "kernel_initializer": None,
             "bias_regularizer": tf.keras.regularizers.L2(),
-            "bias_initializer": "he_uniform",
+            "bias_initializer": None,
         },
     },
     "training_params": {
-        "epochs": 1,
+        "epochs": 20,
         "batch_size": 32
     },
     "model_optimizer": {  # adadelta, adafactor
         "optimizer": tf.keras.optimizers.Adam(
-            learning_rate=2e-4
+            learning_rate=1e-3
             # beta_1=0.9,  # 0.9
             # beta_2=0.999,  # 0.999
         ),
-        "loss": tf.keras.losses.MeanAbsoluteError(),
+        # "loss": tf.keras.losses.MeanSquaredError(),
+        "loss": CustomLoss(alpha=0.5),
         "run_eagerly": False,  # False. True for debugging.
     },
     "callbacks": [
@@ -70,8 +72,6 @@ CONFIG = {
 
 def evaluate_model_on_test_data(model, X_test, y_test):
     y_pred = model.predict(X_test)
-    test_mse = tf.keras.losses.MSE(y_test, np.squeeze(y_pred))._numpy().mean()
-    print(f"Results for the test data: {test_mse}")
 
     scaling_factor = int(y_test.shape[1] / X_test.shape[1])
     num_data_to_visualize = 5
