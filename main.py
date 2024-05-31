@@ -41,7 +41,7 @@ CONFIG = {
     },
     "model_optimizer": {  # adadelta, adafactor
         "optimizer": tf.keras.optimizers.Adam(
-            learning_rate=1e-3
+            learning_rate=5e-6
             # beta_1=0.9,  # 0.9
             # beta_2=0.999,  # 0.999
         ),
@@ -127,7 +127,7 @@ def main(input_files, config):
         )
 
         with open("training_history.json", "w") as f:
-            json.dump(history.history, f)
+            json.dump(history.history, f, indent=4)
 
         model.load_weights("model.h5")
 
