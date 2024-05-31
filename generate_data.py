@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 CONFIG = {
-    "num_total_data": 100000,
-    "x": np.arange(0, 256, 1),  # np.arange(0, 1024, 1)
-    "x_upsampling_factor": 4,  # 4a
+    "num_total_data": 50000,
+    "x": np.arange(0, 1024, 1),  # np.arange(0, 1024, 1)
+    "x_upsampling_factor": 4,  # 4
     "center_range_factor": 0.25,
-    "num_peaks": [2, 4],  # [minimum, maximum]
-    "peak_width_range": [10, 15],  # [minimum width, maximum width]
+    "num_peaks": [2, 5],  # [minimum, maximum]
+    "peak_width_range": [30, 35],  # [minimum width, maximum width]
     "amplitude_range": [0.5, 2],  # 1 is a reference. [minimum amplitude, maximum amplitude]
-    "noise_scale": [0.03, 0.05],  # [minimum, maximum]. Scale is used in numpy.random.normal
+    "noise_scale": [0.01, 0.04],  # [minimum, maximum]. Scale is used in numpy.random.normal
     "clip_at_0": True,  # True means the minimum signal value will be 0 (i.e., no negative number).
     "show_example": True,
 }

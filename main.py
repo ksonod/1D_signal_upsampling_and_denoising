@@ -20,24 +20,32 @@ CONFIG = {
     "validation_size": 0.2,
 
     "model_params": {
-        "input_shape": (128, 1),  # (256, 1). It should be the same as the filters.
-        "num_residual_blocks": 16,  # 32
-        "filters": 128,  # 256. It should be the same as the input shape.
+        "input_shape": (256, 1),  # (256, 1). It should be the same as the filters.
+        "num_residual_blocks": 32,  # 32
         "scaling_factor": 4,  # 4
+        "conv_blocks": {
+            "filters": 256,  # 256. It should be the same as the input shape.
+            "kernel_size": 3,  # 3
+            "strides": 1,  # 1
+            "padding": "same",  # "same"
+            "kernel_regularizer": tf.keras.regularizers.L2(),
+            "kernel_initializer": "he_uniform",
+            "bias_regularizer": tf.keras.regularizers.L2(),
+            "bias_initializer": "he_uniform",
+        },
     },
     "training_params": {
-        "epochs": 10,
-        "batch_size": 64
+        "epochs": 1,
+        "batch_size": 32
     },
     "model_optimizer": {  # adadelta, adafactor
         "optimizer": tf.keras.optimizers.Adam(
-            # learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(
-            #     2e-4, decay_steps=200, decay_rate=0.95, staircase=True
-            # ),  # 0.001
+            learning_rate=2e-4
             # beta_1=0.9,  # 0.9
             # beta_2=0.999,  # 0.999
         ),
         "loss": tf.keras.losses.MeanAbsoluteError(),
+        "run_eagerly": False,  # False. True for debugging.
     },
     "callbacks": [
         tf.keras.callbacks.ModelCheckpoint(**{
@@ -96,11 +104,12 @@ def main(input_files, config):
 
     model = build_model(
         input_shape=config["model_params"]["input_shape"],
-        num_residual_blocks=config["model_params"]["num_residual_blocks"]
+        num_residual_blocks=config["model_params"]["num_residual_blocks"],
+        scaling_factor=config["model_params"]["scaling_factor"],
+        **config["model_params"]["conv_blocks"]
     )
     model.summary()
     model.compile(**config["model_optimizer"])
-    # model.compile(optimizer="adam", loss="mse")
 
     if "model_weights" in input_files:
         model.load_weights(input_files["model_weights"])
@@ -119,6 +128,8 @@ def main(input_files, config):
 
         with open("training_history.json", "w") as f:
             json.dump(history.history, f)
+
+        model.load_weights("model.h5")
 
         plt.figure()
         plt.plot(history.epoch, history.history["loss"], label="train")
