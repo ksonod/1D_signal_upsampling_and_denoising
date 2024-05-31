@@ -1,5 +1,5 @@
 # About this repository  
-<img src="./docs/image/image2.png" width="400">  
+<img src="./docs/image/image2.png" width="530">  
 
 Low-resolution and noisy 1D signals including Gaussian peaks (e.g., molecular spectra, [LiDAR](https://en.wikipedia.org/wiki/Lidar) histogram data, and other data) are denoised and up-sampled using a deep neural network model. 
 The model is similar to the one proposed in [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)] and based on a stack of residual blocks [[2](https://paperswithcode.com/method/residual-block#:~:text=Residual%20Blocks%20are%20skip%2Dconnection,part%20of%20the%20ResNet%20architecture.)] and a point-shuffle method inspired by pixel shuffle [[3](https://paperswithcode.com/method/pixelshuffle)].  
@@ -13,7 +13,7 @@ TO BE ADDED
 - `loss.py`: A custom loss function is defined.
 - `main.py`: This is a script for training and evaluating the model.
 # Architecture 
-<img src="./docs/image/image.png" width="500">
+<img src="./docs/image/image.png" width="800">
 
 # Reference
 [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)] Gangping Liu and Jun Ke, Full-waveform LiDAR echo decomposition based on dense and residual neural networks, Applied Optics, vol. 61, 9, pp. F15-F24, 2022  
