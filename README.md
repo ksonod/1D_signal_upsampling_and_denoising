@@ -18,7 +18,8 @@ In the examples shown above, the number of residual blocks, which can be easily 
 - `loss.py`: A custom loss function is defined.
 - `main.py`: This is a script for training and evaluating the model. You can change CONFIG to do some trainings, evaluations, and experiments.
 # Architecture 
-<img src="./docs/image/image.png" width="800">
+See [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)]  for further details.
+<img src="./docs/image/image1.png" width="800">
 
 # Reference
 [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)] Gangping Liu and Jun Ke, Full-waveform LiDAR echo decomposition based on dense and residual neural networks, Applied Optics, vol. 61, 9, pp. F15-F24, 2022  
