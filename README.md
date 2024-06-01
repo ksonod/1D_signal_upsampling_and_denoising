@@ -23,6 +23,6 @@ See [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)]  for further d
 
 # Reference
 [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)] Gangping Liu and Jun Ke, Full-waveform LiDAR echo decomposition based on dense and residual neural networks, Applied Optics, vol. 61, 9, pp. F15-F24, 2022  
-[[2](https://paperswithcode.com/method/residual-block)] Paper With Code, "Residual Block," paperswithcode.com. [Online]. Available: https://paperswithcode.com/method/residual-block#:~:text=Residual%20Blocks%20are%20skip%2Dconnection,part%20of%20the%20ResNet%20architecture. [Accessed: 31 May, 2024]  
+[[2](https://paperswithcode.com/method/residual-block)] Paper With Code, "Residual Block," paperswithcode.com. [Online]. Available: https://paperswithcode.com/method/residual-block [Accessed: 31 May, 2024]  
 [[3](https://paperswithcode.com/method/pixelshuffle)] Paper With Code, "Pixel Shuffle," paperswithcode.com. [Online]. Available: https://paperswithcode.com/method/pixelshuffle [Accessed: 31 May, 2024]
 
