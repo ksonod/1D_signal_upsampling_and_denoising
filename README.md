@@ -18,7 +18,7 @@ In the examples shown above, the number of residual blocks, which can be easily 
 - `loss.py`: A custom loss function is defined.
 - `main.py`: This is a script for training and evaluating the model. You can change CONFIG to do some trainings, evaluations, and experiments.
 # Architecture 
-See [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)]  for further details.
+See [[1](https://opg.optica.org/ao/abstract.cfm?uri=ao-61-9-f15)]  for further details. Please note that I am not the author of the paper. I made this repository for learning purposes. 
 <img src="./docs/image/image1.png" width="800">
 
 # Reference
